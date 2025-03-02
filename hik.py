@@ -647,26 +647,6 @@ def main():
     # 关闭设备与销毁句柄
     close_and_destroy_device(cam)
 
-    # stdcall = input("回调方式取流显示请输入 0    主动取流方式显示请输入 1:")
-    stdcall = 0
-    # if int(stdcall) == 0:
-    #     # 回调方式抓取图像
-    #     call_back_get_image(cam)
-    #     # 开启设备取流
-    #     start_grab_and_get_data_size(cam)
-    #     # 当使用 回调取流时，需要在此处添加
-    #     print("press a key to stop grabbing.")
-    #     msvcrt.getch()
-    #     # 关闭设备与销毁句柄
-    #     close_and_destroy_device(cam)
-    # elif int(stdcall) == 1:
-    #     # 开启设备取流
-    #     start_grab_and_get_data_size(cam)
-    #     # 主动取流方式抓取图像
-    #     access_get_image(cam, active_way="getImagebuffer")
-    #     # 关闭设备与销毁句柄
-    #     close_and_destroy_device(cam)
-
 
 if __name__ == "__main__":
     main()
