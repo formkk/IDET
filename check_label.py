@@ -59,7 +59,7 @@ def save_results_to_txt(invalid_files, output_file):
 def main():
     # 指定目录路径
     # directory = input("请输入要检查的目录路径: ").strip()
-    directory = "e://idet_data/json"
+    directory = "D:\labeled_data\data_labeled_黄底无字"
 
     if not os.path.isdir(directory):
         print("指定的路径不是目录！")
