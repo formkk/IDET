@@ -129,6 +129,11 @@ class ImageViewer(QWidget):
         button_layout.addWidget(self.close_button)
         left_layout.addLayout(button_layout)
 
+        # 在标注区域上方增加说明“缺陷：”
+        defect_label = QLabel("缺陷：")
+        defect_label.setStyleSheet("font-size: 16px; font-weight: bold; color: orange;")
+        left_layout.addWidget(defect_label)
+
         # 中部：显示所有 label 的值
         self.label_scroll_area = QScrollArea()
         self.label_scroll_area.setWidgetResizable(True)
@@ -185,13 +190,14 @@ class ImageViewer(QWidget):
             data = json.load(f)
 
         # 显示所有 label 的值
+
         shapes = data.get("shapes", [])
         for shape in shapes:
             label = shape.get("label", "")
             if label:
                 # 获取中文说明
                 chinese_desc = LABEL_DICT.get(label, "未知")
-                label_widget = QLabel(f"Label {label}: {chinese_desc}")
+                label_widget = QLabel(f" {label}: {chinese_desc}")
                 label_widget.setStyleSheet("color: white;")  # 设置文字颜色为白色
                 self.label_layout.addWidget(label_widget)
 
