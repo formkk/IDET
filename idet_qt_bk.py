@@ -96,7 +96,6 @@ class ImageViewer(QWidget):
 
     def __init__(self):
         super().__init__()
-        self.image_path = None
         self.json_path = None
         self.init_ui()
 
@@ -121,9 +120,9 @@ class ImageViewer(QWidget):
 
         # 载入文件按钮和关闭按钮
         button_layout = QHBoxLayout()
-        self.load_button = QPushButton("载入 BMP 文件")
+        self.load_button = QPushButton("开始检测")
         self.load_button.setStyleSheet("background-color: #4A4A4A; color: white; padding: 10px; font-size: 16px;")
-        self.load_button.clicked.connect(self.load_bmp)
+        self.load_button.clicked.connect(self.load_json)
         self.close_button = QPushButton("停止")
         self.close_button.setStyleSheet("background-color: #4A4A4A; color: white; padding: 10px; font-size: 16px;")
         self.close_button.clicked.connect(self.close)
@@ -180,13 +179,13 @@ class ImageViewer(QWidget):
         # 设置主布局
         self.setLayout(main_layout)
 
-    def load_bmp(self):
+    def load_json(self):
         """
-        载入 BMP 文件并处理
+        载入 JSON 文件并处理
         """
-        # 打开文件对话框选择 BMP 文件
-        self.image_path, _ = QFileDialog.getOpenFileName(self, "载入 BMP 文件", "", "BMP 文件 (*.bmp)")
-        if not self.image_path:
+        # 打开文件对话框选择 JSON 文件
+        self.json_path, _ = QFileDialog.getOpenFileName(self, "开始检测", "", "JSON 文件 (*.json)")
+        if not self.json_path:
             return
 
         # 清空之前的 label 和状态
@@ -194,14 +193,8 @@ class ImageViewer(QWidget):
             self.label_layout.itemAt(i).widget().setParent(None)
         self.status_label.clear()
 
-        # 查找同名的 JSON 文件
-        json_path = os.path.splitext(self.image_path)[0] + ".json"
-        if not os.path.exists(json_path):
-            print(f"JSON 文件未找到: {json_path}")
-            return
-
         # 读取 JSON 文件
-        with open(json_path, "r", encoding="utf-8") as f:
+        with open(self.json_path, "r", encoding="utf-8") as f:
             data = json.load(f)
 
         # 显示所有 label 的值
@@ -215,10 +208,16 @@ class ImageViewer(QWidget):
                 label_widget.setStyleSheet("color: white; font-size: 14px;")  # 设置文字颜色和大小
                 self.label_layout.addWidget(label_widget)
 
+        # 获取图像路径
+        image_path = os.path.join(os.path.dirname(self.json_path), data["imagePath"])
+        if not os.path.exists(image_path):
+            print(f"Image file not found: {image_path}")
+            return
+
         # 读取图像
-        image = cv2.imread(self.image_path)
+        image = cv2.imread(image_path)
         if image is None:
-            print(f"Failed to load image: {self.image_path}")
+            print(f"Failed to load image: {image_path}")
             return
 
         # 绘制标注
@@ -238,13 +237,11 @@ class ImageViewer(QWidget):
         self.image_original_label.setPixmap(QPixmap.fromImage(qimage_original))
         self.image_annotated_label.setPixmap(QPixmap.fromImage(qimage_annotated))
 
-        # 判断“良品”或“NG”
-        if not shapes:  # 如果 shapes 列表为空
-            self.status_label.setText("良品")
-            self.status_label.setStyleSheet("font-size: 36px; font-weight: bold; color: green;")
-        else:  # 如果 shapes 列表不为空
-            self.status_label.setText("NG")
-            self.status_label.setStyleSheet("font-size: 36px; font-weight: bold; color: red;")
+        # 显示“良品”或“NG”
+        ngbul = data.get("ngbul", 0)
+        self.status_label.setText("良品" if ngbul == 0 else "NG")
+        self.status_label.setStyleSheet("font-size: 36px; font-weight: bold; color: green;" if ngbul == 0 else
+                                       "font-size: 36px; font-weight: bold; color: red;")
 
 
 if __name__ == "__main__":
