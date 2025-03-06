@@ -1,5 +1,6 @@
 import sys
 import json
+import random
 import os
 import cv2
 import numpy as np
@@ -52,6 +53,39 @@ LABEL_DICT = {
 }
 
 
+def simdefect_json(output_path="box.json", num_shapes=2):
+    # 构建基础结构‌:ml-citation{ref="3,4" data="citationList"}
+    data = {
+        "version": "5.6.1",
+        "flags": {},
+        "shapes": [],
+        'shape_type': 'rectangle'
+    }
+
+    # 生成多个标注区域‌:ml-citation{ref="1,2" data="citationList"}
+    for _ in range(num_shapes):
+        # 生成有效坐标对（左上角+右下角）‌:ml-citation{ref="2,4" data="citationList"}
+        x1 = round(random.uniform(0, 1275), 0)  # 保留10位小数‌:ml-citation{ref="1" data="citationList"}
+        y1 = round(random.uniform(0, 955), 0)
+        x2 = round(random.uniform(x1, 1280), 0)  # 确保x2≥x1‌:ml-citation{ref="2" data="citationList"}
+        y2 = round(random.uniform(y1, 960), 0)   # 确保y2≥y1‌:ml-citation{ref="2" data="citationList"}
+
+        # 构建shape对象‌:ml-citation{ref="1,3" data="citationList"}
+        data["shapes"].append({
+            "label": str(random.randint(1, 37)),
+            "points": [
+                [x1, y1],
+                [x2, y2]
+            ]
+        })
+
+    # 写入JSON文件‌:ml-citation{ref="4,5" data="citationList"}
+    with open(output_path, 'w') as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+    return data
+
+
 def draw_annotations(image, shapes):
     """
     将标注绘制到图像上
@@ -62,9 +96,11 @@ def draw_annotations(image, shapes):
     for shape in shapes:
         label = shape.get("label", "")
         points = shape.get("points", [])
-        shape_type = shape.get("shape_type", "")
+        # shape_type = 2
 
-        if shape_type == "rectangle" and len(points) == 2:
+
+        # if shape_type == "rectangle" and len(points) == 2:
+        if len(points) == 2:
             # 将点转换为整数类型
             pt1 = tuple(map(int, points[0]))
             pt2 = tuple(map(int, points[1]))
@@ -73,7 +109,7 @@ def draw_annotations(image, shapes):
             # 在矩形上方绘制标签
             cv2.putText(image, label, (pt1[0], pt1[1] - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
         else:
-            print(f"Unsupported shape type: {shape_type} or invalid points: {points}")
+            print(f"Unsupported shape type: invalid points: {points}")
 
     return image
 
@@ -194,15 +230,17 @@ class ImageViewer(QWidget):
             self.label_layout.itemAt(i).widget().setParent(None)
         self.status_label.clear()
 
-        # 查找同名的 JSON 文件
-        json_path = os.path.splitext(self.image_path)[0] + ".json"
-        if not os.path.exists(json_path):
-            print(f"JSON 文件未找到: {json_path}")
-            return
+        # # 查找同名的 JSON 文件
+        # json_path = os.path.splitext(self.image_path)[0] + ".json"
+        # if not os.path.exists(json_path):
+        #     print(f"JSON 文件未找到: {json_path}")
+        #     return
+        #
+        # # 读取 JSON 文件
+        # with open(json_path, "r", encoding="utf-8") as f:
+        #     data = json.load(f)
 
-        # 读取 JSON 文件
-        with open(json_path, "r", encoding="utf-8") as f:
-            data = json.load(f)
+        data = simdefect_json()
 
         # 显示所有 label 的值
         shapes = data.get("shapes", [])
