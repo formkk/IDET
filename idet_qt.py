@@ -121,7 +121,7 @@ class ImageViewer(QWidget):
 
         # 载入文件按钮和关闭按钮
         button_layout = QHBoxLayout()
-        self.load_button = QPushButton("载入 BMP 文件")
+        self.load_button = QPushButton("开始检测")
         self.load_button.setStyleSheet("background-color: #4A4A4A; color: white; padding: 10px; font-size: 16px;")
         self.load_button.clicked.connect(self.load_bmp)
         self.close_button = QPushButton("停止")
